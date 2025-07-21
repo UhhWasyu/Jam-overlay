@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Jam Smooth Roll</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      overflow: hidden;
+    }
+
+    #clock {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 100px;
+      color: #EFB4DD;
+      text-shadow: 0 4px 6px #360D21;
+    }
+
+    .digit-wrapper {
+      position: relative;
+      height: 1em;
+      overflow: hidden;
+      display: inline-block;
+      width: 0.6em;
+    }
+
+    .digit-inner {
+      position: absolute;
+      width: 100%;
+      transform: translateY(0%);
+    }
+
+    .digit-char {
+      display: block;
+      height: 1em;
+    }
+
+    .rolling {
+      animation: rollIn 0.35s ease-out forwards;
+    }
+
+    @keyframes rollIn {
+      0% {
+        transform: translateY(-0.7em);
+        opacity: 0;
+      }
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="clock"></div>
+
+  <script>
+    let prevTime = "";
+
+    function updateClock() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      const s = String(now.getSeconds()).padStart(2, '0');
+      const currentTime = `${h}:${m}:${s}`;
+
+      const clock = document.getElementById('clock');
+
+      // Jika belum pernah render, buat digit awal
+      if (!clock.hasChildNodes()) {
+        for (let i = 0; i < currentTime.length; i++) {
+          const wrapper = document.createElement('span');
+          wrapper.className = 'digit-wrapper';
+
+          if (currentTime[i] === ":") {
+            wrapper.textContent = ":";
+            wrapper.style.width = "0.3em";
+          } else {
+            const inner = document.createElement('div');
+            inner.className = 'digit-inner';
+
+            const span = document.createElement('span');
+            span.className = 'digit-char';
+            span.textContent = currentTime[i];
+
+            inner.appendChild(span);
+            wrapper.appendChild(inner);
+          }
+
+          clock.appendChild(wrapper);
+        }
+        prevTime = currentTime;
+        return;
+      }
+
+      // Update per digit saja
+      for (let i = 0; i < currentTime.length; i++) {
+        if (currentTime[i] === ":") continue;
+
+        const wrapper = clock.children[i];
+        const inner = wrapper.querySelector('.digit-inner');
+        const oldChar = prevTime[i];
+        const newChar = currentTime[i];
+
+        if (oldChar !== newChar) {
+          // Clear old
+          inner.innerHTML = '';
+
+          const newSpan = document.createElement('span');
+          newSpan.className = 'digit-char';
+          newSpan.textContent = newChar;
+
+          inner.appendChild(newSpan);
+          inner.classList.remove('rolling');
+
+          // Force reflow to restart animation
+          void inner.offsetWidth;
+          inner.classList.add('rolling');
+        }
+      }
+
+      prevTime = currentTime;
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock();
+  </script>
+</body>
+</html>
