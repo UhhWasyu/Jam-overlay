@@ -2,13 +2,14 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>Jam Overlay Final</title>
-  <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&display=swap" rel="stylesheet" />
+  <title>Jam Overlay Cute</title>
+  <!-- Font gemoy -->
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600&display=swap" rel="stylesheet" />
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      background: transparent;
+      background: transparent; /* ✅ transparan */
       overflow: hidden;
     }
 
@@ -19,77 +20,23 @@
       height: 100vh;
     }
 
-    #clock-wrapper {
-      position: relative;
-      width: 360px;
-      height: 420px;
-    }
-
-    svg {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 0;
-    }
-
-    .kite-base {
-      fill: none;
-      stroke: #EFB4DD;
-      stroke-width: 2;
-    }
-
-    .kite-progress {
-      fill: none;
-      stroke: #EFB4DD;
-      stroke-width: 6;
-      stroke-linecap: round;
-      transition: stroke-dashoffset 1s linear;
-    }
-
     #clock {
-      font-family: 'Rubik Mono One', sans-serif;
-      color: #EFB4DD;
-      text-shadow: 0 4px 6px #360D21;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      font-family: 'Fredoka', sans-serif;
+      font-variant-numeric: tabular-nums; /* ✅ angka lebar sama */
+      color: #FEF5DD; /* ✅ warna jam */
+      text-shadow: 3px 4px 8px #8B5E3C; /* ✅ efek coklat shadow */
+      font-size: 120px;
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      z-index: 1;
+      gap: 8px;
     }
 
-    #hour, #minute {
-      font-size: 90px;
-      display: flex;
-      gap: 5px;
-    }
-
-    .separator {
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      align-items: center;
-      margin: 10px 0;
-    }
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #EFB4DD;
-      margin: 0 6px;
-    }
-
+    /* Digit animasi */
     .digit-wrapper {
       position: relative;
       height: 1em;
       overflow: hidden;
       display: inline-block;
-      width: 0.65em;
+      width: 0.75em;
     }
 
     .digit-inner {
@@ -101,6 +48,7 @@
     .digit-char {
       display: block;
       height: 1em;
+      line-height: 1em;
     }
 
     .rolling {
@@ -109,7 +57,7 @@
 
     @keyframes rollIn {
       0% {
-        transform: translateY(-0.7em);
+        transform: translateY(-0.8em);
         opacity: 0;
       }
       100% {
@@ -121,84 +69,61 @@
 </head>
 <body>
   <div id="container">
-    <div id="clock-wrapper">
-      <!-- SVG Layang-layang -->
-      <svg viewBox="0 0 100 150" preserveAspectRatio="xMidYMid meet">
-        <path d="M50,10 L90,75 L50,140 L10,75 Z" class="kite-base"/>
-        <path d="M50,10 L90,75 L50,140 L10,75 Z" class="kite-progress" id="kiteProgress"/>
-      </svg>
-
-      <!-- Konten jam -->
-      <div id="clock">
-        <div id="hour"></div>
-        <div class="separator">
-          <div class="dot"></div>
-          <div class="dot"></div>
-        </div>
-        <div id="minute"></div>
-      </div>
-    </div>
+    <div id="clock"></div>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      let prevTime = "";
-      const progress = document.getElementById('kiteProgress');
-      const pathLength = progress.getTotalLength();
+    let prevTime = "";
 
-      progress.style.strokeDasharray = pathLength;
-      progress.style.strokeDashoffset = pathLength;
+    function createDigits(container, value) {
+      container.innerHTML = "";
+      for (let i = 0; i < value.length; i++) {
+        const wrapper = document.createElement('span');
+        wrapper.className = 'digit-wrapper';
 
-      function createDigits(containerId, value) {
-        const container = document.getElementById(containerId);
-        container.innerHTML = "";
-        for (let i = 0; i < value.length; i++) {
-          const wrapper = document.createElement('span');
-          wrapper.className = 'digit-wrapper';
+        const inner = document.createElement('div');
+        inner.className = 'digit-inner';
 
-          const inner = document.createElement('div');
-          inner.className = 'digit-inner';
+        const span = document.createElement('span');
+        span.className = 'digit-char';
+        span.textContent = value[i];
 
-          const span = document.createElement('span');
-          span.className = 'digit-char';
-          span.textContent = value[i];
-
-          inner.appendChild(span);
-          wrapper.appendChild(inner);
-          container.appendChild(wrapper);
-        }
+        inner.appendChild(span);
+        wrapper.appendChild(inner);
+        container.appendChild(wrapper);
       }
+    }
 
-      function updateClock() {
-        const now = new Date();
-        const h = String(now.getHours()).padStart(2, '0');
-        const m = String(now.getMinutes()).padStart(2, '0');
-        const s = now.getSeconds();
+    function updateClock() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      const newTime = `${h}:${m}`;
 
-        if (prevTime === "") {
-          createDigits("hour", h);
-          createDigits("minute", m);
-          prevTime = `${h}:${m}`;
-        } else {
-          if (prevTime.slice(0, 2) !== h) createDigits("hour", h);
-          if (prevTime.slice(3, 5) !== m) createDigits("minute", m);
-          prevTime = `${h}:${m}`;
-        }
+      const clock = document.getElementById("clock");
 
-        // ✅ Fix: Animasi reset detik langsung tanpa transisi
-        if (s === 0) {
-          progress.style.transition = "none";
-        } else {
-          progress.style.transition = "stroke-dashoffset 1s linear";
-        }
-
-        const offset = pathLength - (s / 60) * pathLength;
-        progress.style.strokeDashoffset = offset;
+      if (prevTime === "") {
+        createDigits(clock, newTime);
+        prevTime = newTime;
+      } else {
+        const wrappers = clock.querySelectorAll(".digit-wrapper");
+        newTime.split("").forEach((char, i) => {
+          const inner = wrappers[i].querySelector(".digit-inner");
+          const oldChar = inner.textContent;
+          if (oldChar !== char) {
+            inner.innerHTML = "";
+            const span = document.createElement("span");
+            span.className = "digit-char rolling";
+            span.textContent = char;
+            inner.appendChild(span);
+          }
+        });
+        prevTime = newTime;
       }
+    }
 
-      setInterval(updateClock, 1000);
-      updateClock();
-    });
+    setInterval(updateClock, 1000);
+    updateClock();
   </script>
 </body>
 </html>
